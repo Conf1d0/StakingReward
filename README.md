@@ -1,13 +1,22 @@
-## Foundry
+## Crowdfund Solidity Sample
 
-**Foundry is a blazing fast, portable and modular toolkit for Ethereum application development written in Rust.**
+**Created for education usage. DYOR.**
 
-Foundry consists of:
 
--   **Forge**: Ethereum testing framework (like Truffle, Hardhat and DappTools).
--   **Cast**: Swiss army knife for interacting with EVM smart contracts, sending transactions and getting chain data.
--   **Anvil**: Local Ethereum node, akin to Ganache, Hardhat Network.
--   **Chisel**: Fast, utilitarian, and verbose solidity REPL.
+The subject of this code base is the contract written solely for educational and informational purposes by me. Our agreement is a crowdfunding contract. The rules are simple:
+
+1. The user creates a crowdfunding campaign.
+
+2. Users can participate by transferring funds to a crowdfunding campaign.
+
+3. After the crowdfunding campaign ends, if the fundraising goal is reached, the funds are automatically transferred to the owner of the crowdfunding campaign.
+
+4.Otherwise, if the campaign fails to meet its goal, users can withdraw their funds."
+
+
+
+
+
 
 ## Documentation
 
