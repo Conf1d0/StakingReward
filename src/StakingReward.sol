@@ -4,12 +4,20 @@ pragma solidity ^0.8.21;
 import "@openzeppelin/contracts/interfaces/IERC20.sol";
 import {StakingRewardHelper} from "../src/StakingRewardHelper.sol";
 
+/**
+ * @title Stake
+ * @notice This contract stakes three different ERC20 tokens
+ * and provides a certain amount of staking reward based on
+ * the staking duration.
+ */
 contract Stake {
+    /**
+     * @dev supported ERC20 tokens.
+     */
+
     IERC20 TNR = IERC20(0xE962c58ACdf0B69f33390a783ad1231994aA460B);
     IERC20 USDT = IERC20(0xebFa8d804f193678D42039C83f5a12cFeaf92945);
     IERC20 USDC = IERC20(0xcd0D7ec19055F5C080d20d3Fe1798d7321716f40);
-
-    StakingRewardHelper helper;
 
     struct Stakes {
         uint256 amount;
@@ -17,14 +25,7 @@ contract Stake {
         uint256 unlockDate;
     }
 
-    enum Currency {
-        TNR,
-        USDT,
-        USDC
-    }
-
-    Currency public currency;
-    mapping(address => Stakes) addressToStakes; // Stakes[] public stakes;
+    mapping(address => Stakes) addressToStakes;
 
     event staked(uint256 _amount, uint16 _duration, address _staker);
     event unstaked(
@@ -33,8 +34,22 @@ contract Stake {
         uint16 _duration,
         address _staker
     );
+    bool private locked;
+    modifier nonReentrant() {
+        require(!locked, "Reentrant call detected");
+        locked = true;
+        _;
+        locked = false;
+    }
 
-    // @dev period is equal to 30 days , 90 days and 365 days
+    /**
+     * @dev period is equal to 30 days , 90 days and 365 days
+     * @param amount_ :amount of staked token
+     * @param period_ :d uration  of stake
+     * @param currency_ : address of staking erc20 token
+     * Emits an {Approval} event indicating the updated allowance. This is not.
+     */
+
     function stake(
         uint256 amount_,
         uint16 period_,
@@ -74,21 +89,27 @@ contract Stake {
         return true;
     }
 
-    function unstake(address staker_, address currency_) public returns (bool) {
-        //reEnterant eklemek lazim
-        //  address staker_ = msg.sender;
+    /**
+     * @dev unstakes fund and adds amount of token according to it's stake duration.
+     * @param staker_ :address of staked token
+     * @param currency_ : address of staking erc20 token
+     */
 
+    function unstake(
+        address staker_,
+        address currency_
+    ) public nonReentrant returns (bool) {
         require(checkPeriod(staker_), "can not unstake before unlock date");
 
         uint16 period_ = addressToStakes[staker_].period;
 
         uint256 amount_ = addressToStakes[staker_].amount;
-        uint256 reward_ = callculateStake(staker_, period_);
+        uint256 reward_ = calculateStake(staker_, period_);
         uint16 duration_ = addressToStakes[staker_].period;
 
         bool b = IERC20(currency_).transfer(
             staker_,
-            amount_ + callculateStake(staker_, period_)
+            amount_ + calculateStake(staker_, period_)
         );
         require(b, "unstake unsuccessfull");
         addressToStakes[staker_].amount = 0;
@@ -98,7 +119,10 @@ contract Stake {
         return true;
     }
 
-    function callculateStake(
+    /**
+     * @dev calculates rewards of staked token.
+     */
+    function calculateStake(
         address staker_,
         uint16 period_
     ) internal view returns (uint256 r) {
@@ -117,6 +141,10 @@ contract Stake {
         }
     }
 
+    /**
+     * @dev checks whether the period is fullfilled or not.
+     */
+
     function checkPeriod(address staker_) internal view returns (bool) {
         uint256 unlockDate_ = addressToStakes[staker_].unlockDate;
 
@@ -131,7 +159,9 @@ contract Stake {
         unlockDate_ = addressToStakes[staker_].unlockDate;
     }
 
-    function getStakedAmount(address staker_) external view returns(uint256 stakedAmount)  {
+    function getStakedAmount(
+        address staker_
+    ) external view returns (uint256 stakedAmount) {
         stakedAmount = addressToStakes[staker_].amount;
     }
 }
