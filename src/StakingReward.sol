@@ -2,7 +2,6 @@
 pragma solidity ^0.8.21;
 
 import "@openzeppelin/contracts/interfaces/IERC20.sol";
-import {StakingRewardHelper} from "../src/StakingRewardHelper.sol";
 
 /**
  * @title Stake
@@ -35,6 +34,7 @@ contract Stake {
         address _staker
     );
     bool private locked;
+
     modifier nonReentrant() {
         require(!locked, "Reentrant call detected");
         locked = true;
