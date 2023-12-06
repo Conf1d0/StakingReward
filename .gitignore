@@ -13,9 +13,3 @@ docs/
 
 # Dotenv file
 .env
-# contracts
-Counter.sol
-CrowdFund.sol
-StakingRewardHelper.sol
-Counter.t.sol
-CrowdFund.t.sol
